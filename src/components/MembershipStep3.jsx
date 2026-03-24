@@ -211,6 +211,72 @@ const MembershipStep3 = () => {
                         </select>
                       )}
 
+                      {(field.type === "multiselect" || field.type === "list") && field.options && (
+                        <div>
+                          <select
+                            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent bg-white"
+                            onChange={(e) => {
+                              if (!e.target.value) return;
+                              const current = Array.isArray(formData[field.name]) ? formData[field.name] : [];
+                              if (!current.includes(e.target.value)) {
+                                handleInputChange(field.name, [...current, e.target.value]);
+                              }
+                              e.target.value = "";
+                            }}
+                          >
+                            <option value="">Select {field.label}</option>
+                            {field.options.map((option) => (
+                              <option
+                                key={option}
+                                value={option}
+                                disabled={(formData[field.name] || []).includes(option)}
+                              >
+                                {option} {(formData[field.name] || []).includes(option) ? "✓" : ""}
+                              </option>
+                            ))}
+                          </select>
+                          {Array.isArray(formData[field.name]) && formData[field.name].length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {formData[field.name].map((item) => (
+                                <span key={item} className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm flex items-center gap-1">
+                                  {item}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const current = formData[field.name].filter((v) => v !== item);
+                                      handleInputChange(field.name, current);
+                                    }}
+                                    className="text-green-600 hover:text-green-800"
+                                  >×</button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {field.required !== false && (
+                            <input
+                              type="text"
+                              required
+                              readOnly
+                              value={(formData[field.name] || []).join(",")}
+                              className="sr-only"
+                              tabIndex={-1}
+                            />
+                          )}
+                          <p className="text-sm text-blue-600 mt-1">You can choose multiple options</p>
+                        </div>
+                      )}
+
+                      {(field.type === "multiselect" || field.type === "list") && !field.options && (
+                        <input
+                          type="text"
+                          value={Array.isArray(formData[field.name]) ? formData[field.name].join(", ") : (formData[field.name] || "")}
+                          onChange={(e) => handleInputChange(field.name, e.target.value.split(",").map(s => s.trim()).filter(Boolean))}
+                          required={field.required !== false}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent"
+                          placeholder={`Enter ${field.label.toLowerCase()} (comma-separated)`}
+                        />
+                      )}
+
                       {field.type === "textarea" && (
                         <textarea
                           value={formData[field.name] || ""}

@@ -191,12 +191,27 @@ const MembershipStep5 = () => {
             longitude: fullData.longitude || 0,
           };
 
-          // Sanitize conditionally required fields sent to backend
-          if (registrationData.freelancer_type && registrationData.freelancer_type !== 'Other') {
-            delete registrationData.custom_freelancer_type;
-          }
-          if (registrationData.freelancer && registrationData.freelancer.freelancer_type !== 'Other') {
-            delete registrationData.freelancer.custom_freelancer_type;
+          // Sanitize conditionally required custom_* fields for ALL user types.
+          // Only send custom_X_type when the matching X_type field is 'Other'.
+          const conditionalCustomFields = [
+            ['freelancer_type',   'custom_freelancer_type'],
+            ['investor_type',     'custom_investor_type'],
+            ['industry_type',     'custom_industry_type'],
+            ['student_type',      'custom_student_type'],
+            ['startup_type',      'custom_startup_type'],
+            ['service_type',      'custom_service_type'],
+            ['incubation_type',   'custom_incubation_type'],
+            ['institute_type',    'custom_institute_type'],
+          ];
+
+          for (const [typeField, customField] of conditionalCustomFields) {
+            if (registrationData[typeField] !== undefined && registrationData[typeField] !== 'Other') {
+              delete registrationData[customField];
+            }
+            if (registrationData[typeField] === undefined) {
+              // Field not present at top level — also clean up just in case
+              delete registrationData[customField];
+            }
           }
 
           try {
