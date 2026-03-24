@@ -1,11 +1,10 @@
 import axios from 'axios';
 
-// In production (Vercel), requests to /api/* are proxied server-side to the backend.
-// In local dev, Vite's proxy (vite.config.ts) handles /api/* the same way.
-// This avoids CORS issues in both environments.
-const BASE_URL = import.meta.env.VITE_API_BASE_URL
-  ? `${import.meta.env.VITE_API_BASE_URL}/api`
-  : '/api';
+// ✅ Always use relative /api path.
+// - In local dev: Vite proxy (vite.config.ts) forwards /api/* → https://api.samadhantra.com/api/*
+// - In production: Vercel rewrite (vercel.json) forwards /api/* → https://api.samadhantra.com/api/*
+// Using VITE_API_BASE_URL directly bypasses these proxies → CORS error on Vercel.
+const BASE_URL = '/api';
 
 // Create axios instance with default config
 const apiClient = axios.create({
