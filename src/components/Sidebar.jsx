@@ -14,7 +14,9 @@ import {
   Settings,
   ChevronDown,
   ChevronRight,
-  X
+  X,
+  HelpCircle,
+  Headphones
 } from "lucide-react";
 import samadhantraLogo from "@/assets/samadhantra-logo.jpeg";
 
@@ -38,7 +40,9 @@ const Sidebar = ({ isOpen, onToggle }) => {
     { name: "Post New Requirement", path: "/dashboard/post-requirement", icon: PlusCircle },
     { name: "My Requirements", path: "/dashboard/requirements", icon: FileText, badge: 3 },
     { name: "Active Announcements", path: "/dashboard/announcements", icon: Users },
-    { name: "Quotes & Proposals", path: "/dashboard/quotes", icon: Receipt, badge: 5 }
+    { name: "Quotes & Proposals", path: "/dashboard/quotes", icon: Receipt, badge: 5 },
+    { name: "FAQ", path: "/dashboard/faq", icon: HelpCircle },
+    { name: "Support", path: "/dashboard/contact", icon: Headphones }
   ];
 
   const projectItems = [

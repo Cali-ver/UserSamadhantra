@@ -22,6 +22,9 @@ import MyRequirements from "./components/MyRequirement";
 import UploadProfilePhoto from "./components/ProfilePhoto";
 import EditRequirement from "./components/EditRequirement";
 import Announcements from "./components/Announcement";
+import MyQuotes from "./components/MyQuotes";
+import FAQ from "./components/FAQ";
+import Contact from "./components/Contact";
 
 const queryClient = new QueryClient();
 
@@ -54,7 +57,9 @@ const App = () => (
               <Route path="/dashboard/profile/edit" element={<EditProfile />} />
               <Route path="/dashboard/profile/photo" element={<UploadProfilePhoto />} />
               <Route path="/dashboard/announcements" element={<Announcements />} />
-              
+              <Route path="/dashboard/quotes" element={<MyQuotes />} />
+              <Route path="/dashboard/faq" element={<FAQ />} />
+              <Route path="/dashboard/contact" element={<Contact />} />
             </Route>
             
             {/* 404 Not Found */}

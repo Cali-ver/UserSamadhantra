@@ -283,6 +283,19 @@ export const createRequirement = async (payload) => {
   }
 };
 /**
+ * Get all requirements (to be filtered by user_id)
+ */
+export const getAllRequirements = async (skip = 0, limit = 100) => {
+  try {
+    const response = await apiClient.get(`/requirements?skip=${skip}&limit=${limit}`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Get requirements error:", error);
+    throw error;
+  }
+};
+
+/**
  * Get user's requirements
  */
 export const getUserRequirements = async () => {
@@ -327,12 +340,23 @@ export const deleteRequirement = async (requirementId) => {
  */
 export const getActiveAnnouncements = async () => {
   try {
-    const response = await apiClient.get(
-      "/requirements/announcements/active"
-    );
+    const response = await apiClient.get('/requirements/announcements/active');
     return response.data;
   } catch (error) {
     console.error("❌ Fetch active announcements error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get Active Notifications for Provider
+ */
+export const getActiveNotifications = async (providerUserId) => {
+  try {
+    const response = await apiClient.get(`/requirements/notifications/active/${providerUserId}`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Fetch notifications error:", error);
     throw error;
   }
 };
@@ -378,6 +402,203 @@ export const getUserChatSessions = async (userId) => {
   }
 };
 
+// ==================== BIDS & AGREEMENTS ENDPOINTS ====================
+
+/**
+ * List my (requester) agreements
+ */
+export const getUserAgreements = async () => {
+  try {
+    const response = await apiClient.get('/requirements/agreements/me');
+    return response.data;
+  } catch (error) {
+    console.error("❌ Get agreements error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get shortlist for a requirement (Requester view)
+ */
+export const getRequirementShortlist = async (requirementId) => {
+  try {
+    const userId = localStorage.getItem('registeredUserId');
+    const token = localStorage.getItem('authToken');
+    
+    // Using 'none' to correctly bypass the request interceptor (which skips if the header is truthy).
+    // This ensures ONLY the token in the query string is used by the backend.
+    const response = await apiClient.get(`/requirements/${requirementId}/shortlist?requester_user_id=${userId}&token=${token}`, {
+      headers: {
+        'Authorization': 'none' 
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("❌ Get shortlist error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Create a new agreement for a requirement
+ */
+export const createAgreement = async (requirementId, agreementData) => {
+  try {
+    const response = await apiClient.post(`/requirements/${requirementId}/agreements`, agreementData);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Create agreement error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Sign agreement as a provider
+ */
+export const signAgreement = async (agreementId, signData) => {
+  try {
+    const response = await apiClient.post(`/requirements/agreements/${agreementId}/sign-provider`, signData);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Sign agreement error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Generate Agreement PDF
+ */
+export const generateAgreementPDF = async (agreementId) => {
+  try {
+    const response = await apiClient.post(`/requirements/agreements/${agreementId}/generate-pdf`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ PDF generation error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Download Agreement PDF
+ */
+export const downloadAgreementPDF = async (agreementId) => {
+  try {
+    const response = await apiClient.get(`/requirements/agreements/downloads/${agreementId}`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ PDF download error:", error);
+    throw error;
+  }
+};
+
+/**
+ * List my generated agreement PDFs
+ */
+export const listMyGeneratedPDFs = async () => {
+  try {
+    const response = await apiClient.get('/requirements/agreements/downloads/me');
+    return response.data;
+  } catch (error) {
+    console.error("❌ List generated PDFs error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Submit a bid for a requirement
+ */
+export const submitBid = async (requirementId, bidData) => {
+  try {
+    console.log(`📤 Submitting bid for requirement ${requirementId}:`, bidData);
+    const response = await apiClient.post(`/requirements/${requirementId}/bid`, bidData);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Submit bid error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get my bid status for a requirement
+ */
+export const getMyBidStatus = async (requirementId) => {
+  try {
+    const response = await apiClient.get(`/requirements/${requirementId}/bid`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Get bid status error:", error);
+    throw error;
+  }
+};
+
+/**
+ * (Provider) Get my shortlists
+ */
+export const getProviderShortlists = async () => {
+  try {
+    const token = localStorage.getItem('authToken');
+    const response = await apiClient.get(`/requirements/shortlist/provider?token=${token}`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Get provider shortlists error:", error);
+    throw error;
+  }
+};
+
+/**
+ * (Provider) Get all my submitted bids
+ */
+export const getProviderBids = async () => {
+  try {
+    const response = await apiClient.get('/requirements/bids/me');
+    return response.data;
+  } catch (error) {
+    console.error("❌ Get provider bids error:", error);
+    throw error;
+  }
+};
+
+/**
+ * (Provider) Get requesters who shortlisted me
+ */
+export const getProviderRequesters = async (providerUserId) => {
+  try {
+    const response = await apiClient.get('/requirements/shortlist/provider/requesters', {
+      headers: { 'Provider-User-Id': providerUserId }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("❌ Get provider requesters error:", error);
+    throw error;
+  }
+};
+
+/**
+ * (Admin) List all agreements
+ */
+export const listAllAgreements = async () => {
+  try {
+    const response = await apiClient.get('/requirements/admin/agreements');
+    return response.data;
+  } catch (error) {
+    console.error("❌ List all agreements error:", error);
+    throw error;
+  }
+};
+
+/**
+ * (Admin) List all bids for a requirement
+ */
+export const listRequirementBids = async (requirementId) => {
+  try {
+    const response = await apiClient.get(`/requirements/admin/${requirementId}/bids`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ List requirement bids error:", error);
+    throw error;
+  }
+};
+
 // ==================== FAQ ENDPOINTS ====================
 
 /**
@@ -394,6 +615,32 @@ export const getFAQs = async () => {
 };
 
 /**
+ * Get FAQ by ID
+ */
+export const getFAQById = async (faqId) => {
+  try {
+    const response = await apiClient.get(`/faq/${faqId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`❌ Get FAQ ${faqId} error:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Get FAQs by Category
+ */
+export const getFAQsByCategory = async (category) => {
+  try {
+    const response = await apiClient.get(`/faq/category/${category}`);
+    return response.data;
+  } catch (error) {
+    console.error(`❌ Get FAQs for category ${category} error:`, error);
+    throw error;
+  }
+};
+
+/**
  * Search FAQs
  */
 export const searchFAQs = async (query) => {
@@ -402,6 +649,21 @@ export const searchFAQs = async (query) => {
     return response.data;
   } catch (error) {
     console.error("❌ Search FAQs error:", error);
+    throw error;
+  }
+};
+
+// ==================== CONTACT ENDPOINTS ====================
+
+/**
+ * Submit Contact Form
+ */
+export const submitContactForm = async (contactData) => {
+  try {
+    const response = await apiClient.post('/contact/', contactData);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Contact layout error:", error);
     throw error;
   }
 };
